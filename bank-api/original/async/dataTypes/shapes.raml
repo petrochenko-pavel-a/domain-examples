@@ -1,0 +1,95 @@
+#%RAML 1.0 Library
+
+usage: Data shapes for the Loan Async API
+
+uses:
+  domain: ../../extensions/domain.raml
+  hyper: ../../extensions/hypermedia.raml
+  agents: ../../domain/agents.raml
+  products: ../../domain/products.raml
+  quantities: ../../domain/quantities.raml
+
+types:
+
+  LoanCreatedEvent:
+    (domain.class): (products.LoanOrCredit)
+    properties:
+      uuid: string
+      loan_id:
+        (domain.property): (products.productId)
+        type: string
+      customer_id:
+        (domain.property): (agents.customerId)
+        type: string
+      amount:
+        (domain.property): (products.amount)
+        type: quantities.MonetaryAmountData
+      interest_rate:
+        (domain.property): (products.interestRate)
+        type: number
+      timestamp: datetime
+    (hyper.ApiLink):
+      (hyper.apiDoc): ../../http/api.raml
+      (hyper.apiPath): /customers/{customer_id}/loans/{loan_id}
+
+  LoanStatusUpdateEvent:
+    (domain.class): (products.LoanOrCredit)
+    properties:
+      uuid: string
+      loan_id:
+        (domain.property): (products.productId)
+        type: string
+      customer_id:
+        (domain.property): (agents.customerId)
+        type: string
+      old_state?:
+        (domain.property): (products.reviewState)
+        enum:
+          - requested
+          - cancelled
+          - underwriting
+          - accepted
+          - opened
+          - failed
+          - closed
+      new_state:
+        (domain.property): (products.reviewState)
+        enum:
+          - requested
+          - cancelled
+          - underwriting
+          - accepted
+          - opened
+          - failed
+          - closed
+      timestamp: datetime
+    (hyper.ApiLink):
+      (hyper.apiDoc): ../../http/api.raml
+      (hyper.apiPath): /customers/{customer_id}/loans/{loan_id}
+
+
+
+  LoanRepaymentEvent:
+    (domain.class): (products.LoanRepayment)
+    properties:
+      uuid: string
+      customer_id:
+        (domain.property): (products.customer_id)
+        type: string
+      principal_repaid:
+        (domain.property): (products.principalRepaid)
+        type: (quantities.MonetaryAmountData)
+      interest_repaid:
+        (domain.property): (products.interestRepaid)
+        type: (quantities.MonetaryAmountData)
+      loan:
+        (domain.property): (products.paymentOf)
+        type:
+          (domain.class): (products.LoanOrCredit)
+          properties:
+            loan_id:
+              (domain.property): (products.productId)
+              type: string
+          (hyper.ApiLink):
+            (hyper.apiDoc): ../../http/api.raml
+            (hyper.apiPath): /customers/{customer_id}/loans/{loan_id}

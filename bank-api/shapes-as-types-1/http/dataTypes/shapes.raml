@@ -1,0 +1,451 @@
+#%RAML 1.0 Library
+
+usage: Data shapes for the HTTP API
+
+uses:
+  domain: ../../extensions/domain.raml
+  common: ../../domain/common.raml
+  agents: ../../domain/agents.raml
+  quantities: ../../domain/quantities.raml
+
+types:
+
+  AddressData:
+    (domain.class): agents.Address
+    properties:
+      address_country:
+        (domain.property): agents.Address.addressCountry #normal reference
+        type: string
+      address_locality:
+        (domain.property): addressLocality #shorthand
+        type: string
+      address_region:
+        (domain.property): addressRegion
+        type: string
+      postal_code:
+        (domain.property): postalCode
+        type: string
+      street_address:
+        (domain.property): streetAddress
+        type: string
+
+  NewCustomerData:
+    type: AddressData
+    (domain.class): agents.LegalPerson
+    properties:
+      lei:
+        (domain.property): leiCode
+        type: string
+      tax_id:
+        (domain.property):  taxId
+        type: string
+      email:
+        (domain.property):  email
+        type: string
+      telephone:
+        (domain.property):  telephone
+        type: string
+
+  NewOrganizationData:
+    type: NewCustomerData
+    properties:
+      name:
+        (domain.property): name
+        type: string
+      vat_id:
+        (domain.property): vatId
+        type: string
+
+  NewPersonData:
+    type: NewCustomerData
+    (domain.class): agents.Person
+    properties:
+      title?:
+        (domain.property): title
+        enum: [mr, mrs, ms, dr]
+      given_name:
+        (domain.property): name
+        type: string
+      family_name:
+        (domain.property): familiyName
+        type: string
+      gender:
+        (domain.property): gender
+        enum: [female, male]
+      vat_id?:
+        (domain.property): vatId
+        type: string
+      birth_date:
+        (domain.property): birthDate
+        type: date-only
+
+
+  CustomerData:
+    (domain.class): agents.LegalPerson
+    discriminator: type
+    properties:
+      type: string
+      lei:
+        (domain.property): leiCode
+        type: string
+      tax_id:
+        (domain.property): taxId
+        type: string
+      email:
+        (domain.property):  email
+        type: string
+      address:
+        (domain.property): address
+        type: AddressData
+
+  OrganizationData:
+    discriminatorValue: Organization
+    (domain.class): agents.Organization
+    type: CustomerData
+    properties:
+      id:
+        (domain.property):  customerId
+        type: string
+      name:
+        (domain.property):  name
+        type: string
+      vat_id:
+        (domain.property): vatId
+        type: string
+
+
+  PersonData:
+    discriminatorValue: Person
+    (domain.class): agents.Person
+    type: CustomerData
+    properties:
+      id:
+        (domain.property):  customerId
+        type: string
+      title?:
+        (domain.property): title
+        enum: [mr, mrs, ms, dr]
+      given_name:
+        (domain.property): name
+        type: string
+      family_name:
+        (domain.property): familiyName
+        type: string
+      gender:
+        (domain.property): gender
+        enum: [female, male]
+      vat_id?:
+        (domain.property): vatId
+        type: string
+      birth_date:
+        (domain.property): birthDate
+        type: date-only
+      death_date?:
+        (domain.property): deathDate
+        type: date-only
+
+
+  CustomerPatchData:
+    (domain.class): agents.Person
+    properties:
+      lei?:
+        (domain.property): leiCode
+        type: string
+      tax_id?:
+        (domain.property): taxId
+        type: string
+      email?:
+        (domain.property): email
+        type: string
+      title?:
+        (domain.property): title
+        enum: [mr, mrs, ms, dr]
+      name?:
+        (domain.property): name
+        type: string
+      family_name?:
+        (domain.property): familiyName
+        type: string
+      gender?:
+        (domain.property): gender
+        enum: [female, male]
+      vat_id?:
+        (domain.property): vatId
+        type: string
+      birth_date?:
+        (domain.property): birthDate
+        type: date-only
+      death_date?:
+        (domain.property): deathDate
+        type: date-only
+      address_country?:
+        (domain.property): addressCountry
+        type: string
+      address_locality?:
+        (domain.property): addressLocality
+        type: string
+      address_region?:
+        (domain.property): addressRegion
+        type: string
+      postal_code?:
+        (domain.property): postalCode
+        type: string
+      street_address?:
+        (domain.property): streetAddress
+        type: string
+
+
+  NewBankAccountRequestData:
+    (domain.class): BankAccount
+    properties:
+      accountType:
+        (domain.property): accountType
+        enum:
+          - standard
+          - saver
+
+  BankAccountData:
+    (domain.class): BankAccount
+    properties:
+      id:
+        (domain.property): productId
+        type: string
+      account_number:
+        (domain.property): accountNumber
+        type: string
+      accountType:
+        (domain.property): accountType
+        enum:
+          - standard
+          - saver
+      amount:
+        (domain.property): amount
+        type: quantities.MonetaryAmount
+      lei:
+        (domain.property): leiCode
+        type: string
+      fees_and_comissions:
+        (domain.property): feesAndComissionsSpecification
+        type: string
+      review_state:
+        (domain.property): reviewState
+        enum:
+          - requested
+          - cancelled
+          - opened
+          - closed
+      interest_rate:
+        (domain.property): interestRate
+        type: number
+      annual_interest_rate:
+        (domain.property): annualPercentageRate
+        type: number
+      minimum_inflow:
+        (domain.property): annualPercentageRate
+        type: quantities.MonetaryAmount
+      overdraft_limit:
+        (domain.property): accountOverdraftLimit
+        type: quantities.MonetaryAmount
+
+  NewLoanRequestData:
+    (domain.class): products.LoanOrCredit
+
+    properties:
+      category:
+        (domain.property): loanType
+        type: string
+      amount:
+        (domain.property): amount
+        type: quantities.MonetaryAmount
+      term:
+        (domain.property): loanTerm
+        type: quantities.DurationData
+      interest_rate:
+        (domain.property): interestRate
+        type: number
+      down_payment:
+        (domain.property): downPayment
+        type: quantities.MonetaryAmount
+      payment_amount:
+        (domain.property): loanPaymentAmount
+        type: quantities.MonetaryAmount
+      payment_frequency:
+        (domain.property): loanPaymentFrequency
+        type: number
+      review_state:
+        (domain.property): reviewState
+        enum:
+          - requested
+          - underwriting
+          - rejected
+          - accepted
+          - repaying
+          - failed
+          - closed
+
+  LoanData:
+    (domain.class): products.LoanOrCredit
+    properties:
+      id:
+        (domain.property): productId
+        type: string
+      account_number:
+        (domain.property): accountNumber
+        type: string
+      accountType:
+        (domain.property): accountType
+        enum:
+          - standard
+          - saver
+      amount:
+        (domain.property): amount
+        type: quantities.MonetaryAmount
+      lei:
+        (domain.property): leiCode
+        type: string
+      fees_and_comissions:
+        (domain.property): feesAndComissionsSpecification
+        type: string
+      review_state:
+        (domain.property): reviewState
+        enum:
+          - requested
+          - cancelled
+          - underwriting
+          - accepted
+          - opened
+          - failed
+          - closed
+      interest_rate:
+        (domain.property): interestRate
+        type: number
+      annual_interest_rate:
+        (domain.property): annualPercentageRate
+        type: number
+      minimum_inflow:
+        (domain.property): annualPercentageRate
+        type: quantities.MonetaryAmount
+      overdraft_limit:
+        (domain.property): accountOverdraftLimit
+        type: quantities.MonetaryAmount
+      grace_period:
+        (domain.property): gracePeriod
+        type: quantities.DurationData
+
+  NewDebitCardRequestData:
+    (domain.class): products.PaymentCard
+    properties:
+      cash_back:
+        (domain.property): cashBack
+        type: boolean
+      contactless:
+        (domain.property): contactless
+        type: boolean
+
+  DebitCardData:
+    (domain.class): products.PaymentCard
+    properties:
+      id:
+        (domain.property): productId
+        type: string
+      lei:
+        (domain.property): leiCode
+        type: string
+      fees_and_comissions:
+        (domain.property): feesAndComissionsSpecification
+        type: string
+      review_state:
+        (domain.property): reviewState
+        enum:
+          - requested
+          - cancelled
+          - opened
+          - closed
+      cash_back:
+        (domain.property): cashBack
+        type: boolean
+      contactless:
+        (domain.property): contactless
+        type: boolean
+      floor_limit:
+        (domain.property): cashBack
+        type: quantities.MonetaryAmount
+
+  NewCreditCardRequestData:
+    (domain.class): products.CreditCard
+    properties:
+      cash_back:
+        (domain.property): cashBack
+        type: boolean
+      contactless:
+        (domain.property): contactless
+        type: boolean
+      interest_rate:
+        (domain.property): interestRate
+        type: number
+      payment_amount:
+        (domain.property): loanPaymentAmount
+        type: quantities.MonetaryAmount
+      payment_frequency:
+        (domain.property): loanPaymentFrequency
+        type: number
+      review_state:
+        (domain.property): reviewState
+        enum:
+          - requested
+          - cancelled
+          - underwriting
+          - accepted
+          - opened
+          - failed
+          - closed
+
+  CreditCardData:
+    (domain.class): products.CreditCard
+    properties:
+      id:
+        (domain.property): productId
+        type: string
+      amount:
+        (domain.property): amount
+        type: quantities.MonetaryAmount
+      lei:
+        (domain.property): leiCode
+        type: string
+      cash_back:
+        (domain.property): cashBack
+        type: boolean
+      contactless:
+        (domain.property): contactless
+        type: boolean
+      floor_limit:
+        (domain.property): cashBack
+        type: quantities.MonetaryAmount
+      fees_and_comissions:
+        (domain.property): feesAndComissionsSpecification
+        type: string
+      review_state:
+        (domain.property): reviewState
+        enum:
+          - requested
+          - cancelled
+          - underwriting
+          - accepted
+          - opened
+          - failed
+          - closed
+      interest_rate:
+        (domain.property): interestRate
+        type: number
+      annual_interest_rate:
+        (domain.property): annualPercentageRate
+        type: number
+      minimum_inflow:
+        (domain.property): annualPercentageRate
+        type: quantities.MonetaryAmount
+      overdraft_limit:
+        (domain.property): accountOverdraftLimit
+        type: quantities.MonetaryAmount
+      grace_period:
+        (domain.property): gracePeriod
+        type: quantities.DurationData

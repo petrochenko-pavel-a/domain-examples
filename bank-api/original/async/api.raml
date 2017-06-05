@@ -1,0 +1,203 @@
+#%RAML 1.0
+
+uses:
+  domain: ../extensions/domain.raml
+  async: ../extensions/async.raml
+  products: ../domain/products.raml
+  shapes: ./dataTypes/shapes.raml
+
+title: ACME Banking Asynchronous Loans API
+
+baseUri: amqp://rabbit.acme-banking.com
+
+(async.broker): (async.rabbitmq)
+(async.rabbit_exchange): loans_exchange
+
+/loans:
+
+  /created:
+    description: New loan request events
+    (async.type): LoanCreatedEvent
+    (async.source):
+      (async.bindings):
+        (async.rabbit_topic): created.*
+
+    /{loan_id}:
+      description: Publication of a new loan request event
+      (async.type): LoanCreatedEvent
+      uriParameters:
+        loan_id:
+          (domain.property): (products.productId)
+      (async.sink):
+        (async.bindings):
+          (async.rabbit_topic): created.{loan_id}
+
+  /reviewUpdate:
+    description: Change in the status of a loan during the underwriting process
+    (async.type): LoanStatusUpdateEvent
+    (async.source):
+      (async.bindings):
+        (async.rabbit_topic): update.*.*
+
+    /requested:
+      description: Loans reaching requested state
+      (async.type): LoanStatusUpdateEvent
+      (async.source):
+        (async.bindings):
+          (async.rabbit_topic): update.requested.*
+
+      /{loan_id}:
+        description: Publication of a particular loan reaching requested state
+        (async.type): LoanStatusUpdateEvent
+        uriParameters:
+          loan_id:
+            (domain.property): (products.productId)
+        (async.sink):
+          (async.bindings):
+            (async.rabbit_topic): update.requested.{loan_id}
+
+    /underwriting:
+      description: Loans reaching underwriting state
+      (async.type): LoanStatusUpdateEvent
+      (async.source):
+        (async.bindings):
+          (async.rabbit_topic): update.underwriting.*
+
+      /{loan_id}:
+        description: Publication of a particular loan reaching underwriting state
+        (async.type): LoanStatusUpdateEvent
+        uriParameters:
+          loan_id:
+            (domain.property): (products.productId)
+        (async.sink):
+          (async.bindings):
+            (async.rabbit_topic): update.underwriting.{loan_id}
+
+    /rejected:
+      description: Loans reaching rejected state, loan has been approved but not yet paid
+      (async.type): LoanStatusUpdateEvent
+      (async.source):
+        (async.bindings):
+          (async.rabbit_topic): update.rejected.*
+
+      /{loan_id}:
+        description: Publication of a particular loan reaching rejected state
+        (async.type): LoanStatusUpdateEvent
+        uriParameters:
+          loan_id:
+            (domain.property): (products.productId)
+        (async.sink):
+          (async.bindings):
+            (async.rabbit_topic): update.rejected.{loan_id}
+
+    /accepted:
+      description: Loans reaching accepted state, loan has been approved but not yet paid
+      (async.type): LoanStatusUpdateEvent
+      (async.source):
+        (async.bindings):
+          (async.rabbit_topic): update.accepted.*
+
+      /{loan_id}:
+        description: Publication of a particular loan reaching accepted state
+        (async.type): LoanStatusUpdateEvent
+        uriParameters:
+          loan_id:
+            (domain.property): (products.productId)
+        (async.sink):
+          (async.bindings):
+            (async.rabbit_topic): update.accepted.{loan_id}
+
+    /repaying:
+      description: Loans reaching repaying state
+      (async.type): LoanStatusUpdateEvent
+      (async.source):
+        (async.bindings):
+          (async.rabbit_topic): update.repaying.*
+
+      /{loan_id}:
+        description: |
+          Publication of a particular loan reaching repaying state, loan has been
+          accepted, payed to the customer and is awaiting repayment
+        (async.type): LoanStatusUpdateEvent
+        uriParameters:
+          loan_id:
+            (domain.property): (products.productId)
+        (async.sink):
+          (async.bindings):
+            (async.rabbit_topic): update.repaying.{loan_id}
+
+    /failed:
+      description: Loans reaching failed state
+      (async.type): LoanStatusUpdateEvent
+      (async.source):
+        (async.bindings):
+          (async.rabbit_topic): update.failed.*
+
+      /{loan_id}:
+        description: |
+          Publication of a particular loan reaching failed state, after the
+          repayment process has failed
+        (async.type): LoanStatusUpdateEvent
+        uriParameters:
+          loan_id:
+            (domain.property): (products.productId)
+        (async.sink):
+          (async.bindings):
+            (async.rabbit_topic): update.failed.{loan_id}
+
+
+    /closed:
+      description: Loans reaching closed state
+      (async.type): LoanStatusUpdateEvent
+      (async.source):
+        (async.bindings):
+          (async.rabbit_topic): update.closed.*
+
+      /{loan_id}:
+        description: |
+          Publication of a particular loan reaching closed state, after the
+          repayment process has finished
+        (async.type): LoanStatusUpdateEvent
+        uriParameters:
+          loan_id:
+            (domain.property): (products.productId)
+        (async.sink):
+          (async.bindings):
+            (async.rabbit_topic): update.closed.{loan_id}
+
+    /all:
+      description: Subscribes to all the events for all loans
+      (async.type): LoanStatusUpdateEvent
+      (async.source):
+        (async.bindings):
+          (async.rabbit_topic): update.*.*
+
+      /{loan_id}:
+        description: Subscribes to all the events for a particular loan
+        (async.type): LoanStatusUpdateEvent
+        uriParameters:
+          loan_id:
+            (domain.property): (products.productId)
+        (async.source):
+          (async.bindings):
+            (async.rabbit_topic): update.*.{loan_id}
+
+  /repayments:
+    description: Subscribes to all repayment events for all loans
+    (async.type): LoanRepaymentEvent
+    (async.source):
+      (async.bindings):
+        (async.rabbit_topic): repayment.*
+
+    /{loan_id}:
+      description: Publication and subscription of repayments for a particular loan
+      uriParameters:
+        loan_id:
+          (domain.property): (products.productId)
+      (async.type): LoanRepaymentEvent
+      (async.source):
+        (async.bindings):
+          (async.rabbit_topic): repayment.{loan_id}
+      (async.sink):
+        (async.bindings):
+          (async.rabbit_topic): repayment.{loan_id}

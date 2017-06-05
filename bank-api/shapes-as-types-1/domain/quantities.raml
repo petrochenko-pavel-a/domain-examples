@@ -1,0 +1,107 @@
+#%RAML 1.0 Library
+
+uses:
+  domain: ../extensions/domain.raml
+
+(domain.base): "http://acme-banking/vocabulary/quantities#"
+
+usage: Structured types used in the domain description when a simple literal value cannot be used to capture the meaning.
+
+types:
+
+  # Classes
+
+  StructuredValue:
+    displayName: Structured Value
+    description: |
+      Structured values are used when the value of a property has a more complex structure than simply being a textual
+      value or a reference to another thing.
+    properties:
+      value:
+        displayName: value
+        description: The value of the quantitative value or property value node.
+
+  RepaymentSpecification:
+    displayName: Repayment Specification
+    description: A structured value representing repayment.
+    type: StructuredValue
+    properties:
+      loanPaymentFrequency:
+        displayName: loan payment frequency
+        description: |
+          Frequency of payments due, i.e. number of months between payments. This is defined as a frequency,
+          i.e. the reciprocal of a period of time.
+        type: number
+      numberOfLoanPayments:
+          displayName: number of loan payments
+          description: |
+            The number of payments contractually required at origination to repay the loan. For monthly paying loans this is
+            the number of months from the contractual first payment date to the maturity date.
+          type: number
+      downPayment:
+          displayName: down payment
+          description: |
+            a type of payment made in cash during the onset of the purchase of an expensive good/service.
+            The payment typically represents only a percentage of the full purchase price.
+          type: MonetaryAmount
+      earlyPrepaymentPenalty:
+          displayName: early penalty
+          description: The amount to be paid as a penalty in the event of early payment of the loan.
+          type: MonetaryAmount
+      loanPaymentAmount:
+          displayName: loan payment amount
+          description: The amount of money to pay in a single payment.
+          type: MonetaryAmount
+
+  MonetaryAmount:
+    displayName: Monetary Amount
+    description: |
+      A monetary value or range. This type can be used to describe an amount of money such as $50 USD, or a range as in
+      describing a bank account being suitable for a balance between £1,000 and £1,000,000 GBP, or the value of a salary,
+      etc.
+    type: StructuredValue
+    properties:
+      currency:
+        displayName: currency
+        description: The currency in which the monetary amount is expressed (in 3-letter ISO 4217 format).
+
+  Duration:
+    displayName: Duration
+    description: Duration (use ISO 8601 duration format).
+
+
+  # MonetaryAmountData:
+  #   (domain.class): (MonetaryAmount)
+  #   properties:
+  #     value:
+  #       (domain.property): (value)
+  #       type: number
+  #     currency:
+  #       (domain.property): (currency)
+  #       type: string
+
+  DurationData:
+    (domain.class): (Duration)
+    properties:
+      value:
+        (domain.property): (value)
+        type: string
+
+  RepaymentSpecificationData:
+    (domain.class): RepaymentSpecification
+    properties:
+      down_payment:
+        (domain.property): RepaymentSpecification.downPayment
+        type: MonetaryAmount
+      payment_frequency:
+        (domain.property): RepaymentSpecification.loanPaymentFrequency
+        type: number
+      number_payments:
+        (domain.property): RepaymentSpecification.numberOfLoanPayments
+        type: integer
+      payment_amount:
+        (domain.property): RepaymentSpecification.loanPaymentAmount
+        type: MonetaryAmount
+      early_payment_penalty:
+        (domain.property): RepaymentSpecification.earlyPrepaymentPenalty
+        type: MonetaryAmount

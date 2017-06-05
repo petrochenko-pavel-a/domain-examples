@@ -1,0 +1,76 @@
+#%RAML 1.0 Library
+
+uses:
+  domain: ./domain.raml
+
+(domain.base): "http://acme-banking/vocabulary/async#"
+
+usage: Extensions for describing eventd APIs in RAML
+
+annotationTypes:
+
+  # Broker declaration
+
+  broker:
+    (domain.inherits): (domain.Class)
+    displayName: broker
+    description: Kind of messaging broker technology used for the binding of the event sinks and sources
+    type: string
+
+  rabbitmq:
+    (domain.inherits): (domain.Class)
+    displayName: RabbitMQ broker
+    description: Annotation mean to be used as the string value of the broker annotation to declare a RabbitMQ broker
+    type: any
+
+  kafka:
+    (domain.inherits): (domain.Class)
+    displayName: Kafka broker
+    description: Annotation mean to be used as the string value of the broker annotation to declare a Kafka broker
+    type: any
+
+  # Definitions of event streams: sources and sinks
+
+  source:
+    (domain.inherits): (domain.ObjectProperty)
+    displayName: source
+    description: Source of events
+    allowedTargets: Resource
+    type: any
+
+  sink:
+    (domain.inherits): (domain.ObjectProperty)
+    displayName: sink
+    description: Sink of events
+    allowedTargets: Resource
+    type: any
+
+  # Event payloads
+
+  type:
+    (domain.inherits): (domain.ObjectProperty)
+    displayName: event type
+    description: Data shape for the event written / read in a sink / source
+    type: any
+
+  # Broker bindings
+
+  bindings:
+    (domain.inherits): (domain.ObjectProperty)
+    displayName: bindings
+    description: Binding information about how to access one source or sink when using a particular message broker
+    type: any
+
+  # RabbitMQ broker bindings
+
+  rabbit_topic:
+    (domain.inherits): (domain.LiteralProperty)
+    displayName: rabbit topic
+    description: Topic value used to connect to the event source / sink
+    type: string
+
+  rabbit_exchange:
+    (domain.inherits): (domain.LiteralProperty)
+    displayName: rabbit exchange
+    description: RabbitMQ exchange used to connect to the event source /sink
+    type: string

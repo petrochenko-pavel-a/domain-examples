@@ -1,0 +1,20 @@
+#%RAML 1.0 Library
+
+uses:
+  domain: ../extensions/domain.raml
+
+(domain.base): "http://acme-banking/vocabulary/agents#"
+
+types:
+
+  id:
+    displayName: system id
+    description: Identifier of the entity in different processing systems
+
+  name:
+    displayName: name
+    description: The official name of the entity, e.g. the registered company name.
+
+  leiCode:
+    displayName: legal entity identifier (LEI)
+    description: An organization identifier that uniquely identifies a legal entity as defined in ISO 17442.
