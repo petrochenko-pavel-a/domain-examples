@@ -1,0 +1,980 @@
+#%RAML 1.0 Library
+annotationTypes:
+  NoDirectParse: boolean
+  DocumentationTableName: string
+  PrimitiveTypeWrapper: string
+  NameAtRuntime: string
+  Aliases:
+    type: array
+  AllowsNull: boolean
+  FromParentKey: boolean
+  Key: boolean
+  Hidden: boolean
+  CanBeValue: boolean
+  DefaultValue: string
+  SystemProperty: boolean
+  DeclaresFields: boolean
+  SelfNode: boolean
+  DefaultBooleanValue: string
+  Describes: string
+  CanInherit:
+    type: string[]
+  ConvertsToGlobal: string
+  NewInstanceName: string
+  DeclaresType: string
+  ContextRequirements:
+    type: array
+  Defining:
+    type: string[]
+  AllowsOptionalProperties: boolean
+  Template: boolean
+  FromParentValue: boolean
+  ActuallyExports: string
+  KeyShouldStartFrom: string
+  AllowsAnyChildren: boolean
+  ReferenceIs: string
+  Inherited: boolean
+types:
+  RAMLLanguageElement:
+    type: object
+    properties:
+      annotations?:
+        type: AnnotationRef[]
+        description: Most of RAML model elements may have attached annotations decribing additional meta data about this element
+        (NoDirectParse): true
+        (DocumentationTableName): (&lt;annotationName&gt;)
+      displayName?:
+        type: string
+        description: The displayName attribute specifies the $self's display name. It is a friendly name used only for display or documentation purposes. If displayName is not specified, it defaults to the element's key (the name of the property itself).
+      description?:
+        type: MarkdownString
+        description: The description attribute describes the intended use or meaning of the $self. This value MAY be formatted using Markdown [MARKDOWN]
+  ValueType: string
+  NumberType:
+    type: ValueType
+    (PrimitiveTypeWrapper): class java.lang.Number
+    (NameAtRuntime): number
+    (Aliases): [
+      integer,
+      number]
+
+  BooleanType:
+    type: ValueType
+    (PrimitiveTypeWrapper): class java.lang.Boolean
+    (NameAtRuntime): boolean
+    (Aliases): boolean
+  Reference: any
+  ResourceTypeRef: Reference
+  ResourceBase:
+    type: RAMLLanguageElement
+    properties:
+      type?:
+        type: ResourceTypeRef
+        description: The resource type which this resource inherits. . See [[raml-10-spec-applying-resource-types-and-traits|Applying Resource Types and Traits]] section.
+      securedBy?:
+        type: SecuritySchemeRef[]
+        description: The security schemes that apply to all methods declared (implicitly or explicitly) for this resource.
+        (AllowsNull): true
+      uriParameters?:
+        type: TypeDeclaration[]
+        description: Detailed information about any URI parameters of this resource
+      is?:
+        type: TraitRef[]
+        description: A list of the traits to apply to all methods declared (implicitly or explicitly) for this resource. See [[raml-10-spec-applying-resource-types-and-traits|Applying Resource Types and Traits]] section. Individual methods may override this declaration
+      methods?:
+        type: Method[]
+        description: Methods that are part of this resource type definition
+        (DocumentationTableName): get?<br>patch?<br>put?<br>post?<br>delete?<br>options?<br>head?<br>trace?<br>connect?
+  HasNormalParameters:
+    type: RAMLLanguageElement
+    properties:
+      headers?:
+        type: TypeDeclaration[]
+        description: Headers that allowed at this position
+        (NewInstanceName): New Header
+      queryString?: TypeDeclaration
+      queryParameters?:
+        type: TypeDeclaration[]
+        description: An APIs resources MAY be filtered (to return a subset of results) or altered (such as transforming a response body from JSON to XML format) by the use of query strings. If the resource or its method supports a query string, the query string MUST be defined by the queryParameters property
+        (NewInstanceName): New query parameter
+  TypeDeclaration:
+    type: RAMLLanguageElement
+    discriminator: type
+    (CanInherit): mediaType
+    (ConvertsToGlobal): SchemaString
+    properties:
+      annotations?:
+        type: AnnotationRef[]
+        description: Most of RAML model elements may have attached annotations decribing additional meta data about this element
+        (NoDirectParse): true
+        (DocumentationTableName): (&lt;annotationName&gt;)
+      name?:
+        type: string
+        description: name of the parameter
+        (FromParentKey): true
+        (Key): true
+        (Hidden): true
+      type?:
+        type: string[]
+        description: A base type which the current type extends, or more generally a type expression.
+        (CanBeValue): true
+        (DefaultValue): string
+      displayName?:
+        type: string
+        description: An alternate, human-friendly name for the type
+      location?:
+        type: ModelLocation
+        description: Location of the parameter (can not be edited by user)
+        (SystemProperty): true
+        (Hidden): true
+      description?:
+        type: MarkdownString
+        description: A longer, human-friendly description of the type
+      facets?:
+        type: TypeDeclaration[]
+        description: When extending from a type you can define new facets (which can then be set to concrete values by subtypes).
+        (DeclaresFields): true
+        (Hidden): true
+      default?:
+        type: string
+        description: Provides default value for a property
+        (Hidden): true
+      example?:
+        type: string
+        description: An example of an instance of this type. This can be used, e.g., by documentation generators to generate sample values for an object of this type. Cannot be present if the examples property is present.
+        (SelfNode): true
+      examples?:
+        type: ExampleSpec[]
+        description: An object containing named examples of instances of this type. This can be used, e.g., by documentation generators to generate sample values for an object of this type. Cannot be present if the examples property is present.
+      repeat?:
+        type: boolean
+        description: The repeat attribute specifies that the parameter can be repeated. If the parameter can be used multiple times, the repeat parameter value MUST be set to 'true'. Otherwise, the default value is 'false' and the parameter may not be repeated.
+        (DefaultBooleanValue): false
+        (Hidden): true
+      required?:
+        type: boolean
+        description: Sets if property is optional or not
+        (DefaultBooleanValue): true
+        (Describes): required
+        (Hidden): true
+      schema?:
+        type: string
+        description: Alias for the equivalent "type" property, for compatibility with RAML 0.8. Deprecated - API definitions should use the "type" property, as the "schema" alias for that property name may be removed in a future RAML version. The "type" property allows for XML and JSON schemas.
+      usage?:
+        type: string
+        (Hidden): true
+      locationKind?:
+        type: LocationKind
+        description: Kind of location
+        (SystemProperty): true
+        (Hidden): true
+  ModelLocation:
+    type: string
+    enum: [
+      QUERY,
+      HEADERS,
+      URI,
+      FORM,
+      BURI,
+      ANNOTATION,
+      MODEL,
+      SECURITYSCHEMATYPE]
+
+  LocationKind:
+    type: string
+    enum: [
+      APISTRUCTURE,
+      DECLARATIONS,
+      MODELS]
+
+  ExampleSpec:
+    type: RAMLLanguageElement
+    properties:
+      annotations?:
+        type: AnnotationRef[]
+        description: Most of RAML model elements may have attached annotations decribing additional meta data about this element
+        (NoDirectParse): true
+        (DocumentationTableName): (&lt;annotationName&gt;)
+      name?:
+        type: string
+        (FromParentKey): true
+        (Key): true
+        (Hidden): true
+      displayName?:
+        type: string
+        description: An alternate, human-friendly name for the example
+      description?:
+        type: MarkdownString
+        description: A longer, human-friendly description of the example
+      strict?:
+        type: boolean
+        description: By default, examples are validated against any type declaration. Set this to false to allow examples that need not validate.
+      content:
+        type: string
+        description: The example itself
+        (SelfNode): true
+  AnnotationRef:
+    type: Reference
+    description: Annotations allow you to attach information to your API
+  AnnotationTypeDeclaration:
+    type: RAMLLanguageElement
+    (DeclaresType): AnnotationTypeDeclaration
+    properties:
+      allowMultiple?:
+        type: boolean
+        description: Whether multiple instances of annotations of this type may be applied simultaneously at the same location
+      allowedTargets?:
+        type: AnnotationTarget[]
+        description: Restrictions on where annotations of this type can be applied. If this property is specified, annotations of this type may only be applied on a property corresponding to one of the target names specified as the value of this property.
+  AnnotationTarget:
+    type: ValueType
+    description: Elements to which this Annotation can be applied (enum)
+  FileTypeDeclaration:
+    type: TypeDeclaration
+    description: (Applicable only to Form properties) Value is a file. Client generators SHOULD use this type to handle file uploads correctly.
+    discriminatorValue: file
+    properties:
+      fileTypes?:
+        type: ContentType[]
+        description: 'It should also include a new property: fileTypes, which should
+          be a list of valid content-type strings for the file. The file type */*
+          should be a valid value.'
+      minLength?:
+        type: number
+        description: The minLength attribute specifies the parameter value's minimum number of bytes.
+      maxLength?:
+        type: number
+        description: The maxLength attribute specifies the parameter value's maximum number of bytes.
+  ContentType: StringType
+  ArrayTypeDeclaration:
+    type: TypeDeclaration
+    discriminatorValue: array
+    (Aliases): array
+    (DeclaresType): TypeDeclaration
+    (ConvertsToGlobal): SchemaString
+    properties:
+      maxItems?:
+        type: number
+        description: Maximum amount of items in array
+      uniqueItems?:
+        type: boolean
+        description: Should items in array be unique
+      minItems?:
+        type: number
+        description: Minimum amount of items in array
+      items?:
+        type: TypeDeclaration
+        description: Array component type.
+  UnionTypeDeclaration:
+    type: TypeDeclaration
+    discriminatorValue: union
+    (DeclaresType): TypeDeclaration
+    (ContextRequirements): '@com.mulesoft.definition.system.annotations.ContextRequirements$ContextRequirementEntry(name=locationKind,
+      value=LocationKind.MODELS)'
+    (ConvertsToGlobal): SchemaString
+    properties:
+      discriminator?:
+        type: string
+        description: Type property name to be used as a discriminator or boolean
+  ObjectTypeDeclaration:
+    type: TypeDeclaration
+    discriminatorValue: object
+    (Defining): properties
+    (DeclaresType): TypeDeclaration
+    (ConvertsToGlobal): SchemaString
+    properties:
+      minProperties?:
+        type: number
+        description: The minimum number of properties allowed for instances of this type.
+      maxProperties?:
+        type: number
+        description: The maximum number of properties allowed for instances of this type.
+      additionalProperties?:
+        type: TypeDeclaration
+        description: JSON schema style syntax for declaring maps
+      patternProperties?:
+        type: TypeDeclaration[]
+        description: JSON schema style syntax for declaring key restricted maps
+      discriminatorValue?:
+        type: string
+        description: The value of discriminator for the type.
+      discriminator?:
+        type: pointer
+        description: Type property name to be used as discriminator, or boolean
+      properties?:
+        type: TypeDeclaration[]
+        description: The properties that instances of this type may or must have.
+  pointer: ValueType
+  StringTypeDeclaration:
+    type: TypeDeclaration
+    description: Value must be a string
+    discriminatorValue: string
+    (DeclaresType): TypeDeclaration
+    properties:
+      pattern?:
+        type: string
+        description: Regular expression that this string should path
+      minLength?:
+        type: number
+        description: Minimum length of the string
+      maxLength?:
+        type: number
+        description: Maximum length of the string
+      enum?:
+        type: string[]
+        description: (Optional, applicable only for parameters of type string) The enum attribute provides an enumeration of the parameter's valid values. This MUST be an array. If the enum attribute is defined, API clients and servers MUST verify that a parameter's value matches a value in the enum array. If there is no matching value, the clients and servers MUST treat this as an error.
+        (Describes): oneOf
+        (Hidden): true
+  BooleanTypeDeclaration:
+    type: TypeDeclaration
+    description: Value must be a boolean
+    discriminatorValue: boolean
+    (DeclaresType): TypeDeclaration
+  ValueTypeDeclaration:
+    type: TypeDeclaration
+    description: Value must be a boolean
+    discriminatorValue: value
+    (DeclaresType): TypeDeclaration
+  NumberTypeDeclaration:
+    type: TypeDeclaration
+    description: Value MUST be a number. Indicate floating point numbers as defined by YAML.
+    discriminatorValue: number
+    (DeclaresType): TypeDeclaration
+    properties:
+      format?:
+        type: string
+        description: Value format
+        enum: [
+          int32,
+          int64,
+          int,
+          long,
+          float,
+          double,
+          int16,
+          int8]
+
+      enum?:
+        type: string[]
+        description: (Optional, applicable only for parameters of type string) The enum attribute provides an enumeration of the parameter's valid values. This MUST be an array. If the enum attribute is defined, API clients and servers MUST verify that a parameter's value matches a value in the enum array. If there is no matching value, the clients and servers MUST treat this as an error.
+        (Describes): oneOf
+        (Hidden): true
+      maximum?:
+        type: number
+        description: (Optional, applicable only for parameters of type number or integer) The maximum attribute specifies the parameter's maximum value.
+      minimum?:
+        type: number
+        description: (Optional, applicable only for parameters of type number or integer) The minimum attribute specifies the parameter's minimum value.
+      multipleOf?:
+        type: number
+        description: A numeric instance is valid against "multipleOf" if the result of the division of the instance by this keyword's value is an integer.
+  IntegerTypeDeclaration:
+    type: NumberTypeDeclaration
+    description: Value MUST be a integer.
+    discriminatorValue: integer
+    (DeclaresType): TypeDeclaration
+    properties:
+      format?:
+        type: string
+        enum: [
+          int32,
+          int64,
+          int,
+          long,
+          int16,
+          int8]
+
+  RAMLPointerElement:
+    type: TypeDeclaration
+    discriminatorValue: pointer
+    (ContextRequirements): '@com.mulesoft.definition.system.annotations.ContextRequirements$ContextRequirementEntry(name=locationKind,
+      value=LocationKind.APISTRUCTURE)'
+    properties:
+      target?: RAMLSelector
+  RAMLSelector: StringType
+  RAMLExpression:
+    type: TypeDeclaration
+    discriminatorValue: ramlexpression
+    (ContextRequirements): [
+      '@com.mulesoft.definition.system.annotations.ContextRequirements$ContextRequirementEntry(name=locationKind,
+        value=LocationKind.APISTRUCTURE)',
+      '@com.mulesoft.definition.system.annotations.ContextRequirements$ContextRequirementEntry(name=location,
+        value=ModelLocation.ANNOTATION)']
+
+  ScriptHookElement:
+    type: TypeDeclaration
+    discriminatorValue: script
+    (ContextRequirements): [
+      '@com.mulesoft.definition.system.annotations.ContextRequirements$ContextRequirementEntry(name=locationKind,
+        value=LocationKind.APISTRUCTURE)',
+      '@com.mulesoft.definition.system.annotations.ContextRequirements$ContextRequirementEntry(name=location,
+        value=ModelLocation.ANNOTATION)']
+    properties:
+      interfaceName?:
+        type: string
+        description: Name of the interface which scripts should comply to
+      declaredIn?:
+        type: string
+        description: Typescript file defining interface which this scrip should comply to
+  SchemaElement:
+    type: TypeDeclaration
+    discriminatorValue: schema
+    (NameAtRuntime): SchemaString
+    (ContextRequirements): '@com.mulesoft.definition.system.annotations.ContextRequirements$ContextRequirementEntry(name=locationKind,
+      value=LocationKind.APISTRUCTURE)'
+  DateTypeDeclaration:
+    type: TypeDeclaration
+    description: Value MUST be a string representation of a date as defined in RFC2616 Section 3.3 [RFC2616]. or according to specified date format
+    discriminatorValue: date
+    (DeclaresType): TypeDeclaration
+    properties:
+      dateFormat?: DateFormatSpec
+  DateFormatSpec: StringType
+  MethodBase:
+    type: HasNormalParameters
+    properties:
+      securedBy?:
+        type: SecuritySchemeRef[]
+        description: ' securityScheme may also be applied to a resource by using the
+          securedBy key, which is equivalent to applying the securityScheme to all
+          methods that may be declared, explicitly or implicitly, by defining the
+          resourceTypes or traits property for that resource.
+
+          To indicate that the method may be called without applying any securityScheme,
+          the method may be annotated with the null securityScheme.'
+        (AllowsNull): true
+      body?:
+        type: TypeDeclaration[]
+        description: Some method verbs expect the resource to be sent as a request body. For example, to create a resource, the request must include the details of the resource to create.
+
+          Resources CAN have alternate representations. For example, an API might support both JSON and XML representations.
+
+          A method's body is defined in the body property as a hashmap, in which the key MUST be a valid media type.
+        (NewInstanceName): New Body
+      responses?:
+        type: Response[]
+        description: Information about the expected responses to a request
+        (NewInstanceName): New Response
+      protocols?:
+        type: string[]
+        description: A method can override the protocols specified in the resource or at the API root, by employing this property.
+      is?:
+        type: TraitRef[]
+        description: Instantiation of applyed traits
+  Response:
+    type: RAMLLanguageElement
+    properties:
+      annotations?:
+        type: AnnotationRef[]
+        description: Most of RAML model elements may have attached annotations decribing additional meta data about this element
+        (NoDirectParse): true
+        (DocumentationTableName): (&lt;annotationName&gt;)
+      displayName?:
+        type: string
+        description: An alternate, human-friendly name for the response
+      description?:
+        type: MarkdownString
+        description: A longer, human-friendly description of the response
+      headers?:
+        type: TypeDeclaration[]
+        description: Detailed information about any response headers returned by this method
+        (NewInstanceName): New Header
+      body?:
+        type: TypeDeclaration[]
+        description: 'The body of the response: a body declaration'
+        (NewInstanceName): New Body
+      code?:
+        type: StatusCodeString
+        description: Responses MUST be a map of one or more HTTP status codes, where each status code itself is a map that describes that status code.
+        (FromParentKey): true
+        (Key): true
+        (Hidden): true
+  StatusCodeString: StringType
+  TraitRef: Reference
+  Trait:
+    type: MethodBase
+    (AllowsOptionalProperties): true
+    (Template): true
+    properties:
+      name?:
+        type: string
+        description: Name of the trait
+        (FromParentKey): true
+        (Key): true
+      uses?:
+        type: Library[]
+        description: You may import library locally here it contents is accessible only inside of this trait
+      usage?: string
+  Library:
+    type: LibraryBase
+    properties:
+      usage?:
+        type: string
+        description: contains description of why library exist
+  SecuritySchemeRef: Reference
+  AbstractSecurityScheme:
+    type: RAMLLanguageElement
+    discriminator: type
+    description: Declares globally referable security scheme definition
+    (ActuallyExports): $self
+    (ReferenceIs): settings
+    properties:
+      name?:
+        type: string
+        (KeyShouldStartFrom): ''
+        (FromParentKey): true
+        (Key): true
+        (Hidden): true
+      type:
+        type: string
+        description: The securitySchemes property MUST be used to specify an API's security mechanisms, including the required settings and the authentication methods that the API supports. one authentication method is allowed if the API supports them.
+        enum: [
+          OAuth 1.0,
+          OAuth 2.0,
+          Basic Authentication,
+          Digest Authentication,
+          Pass Through,
+          'x-{other}']
+
+      description?:
+        type: MarkdownString
+        description: The description MAY be used to describe a securityScheme.
+      settings?:
+        type: SecuritySchemeSettings
+        description: The settings attribute MAY be used to provide security scheme-specific information. The required attributes vary depending on the type of security scheme is being declared.
+
+          It describes the minimum set of properties which any processing application MUST provide and validate if it chooses to implement the security scheme. Processing applications MAY choose to recognize other properties for things such as token lifetime, preferred cryptographic algorithms, and more.
+      describedBy?:
+        type: SecuritySchemePart
+        description: 'A description of the request components related to Security
+          that are determined by the scheme: the headers, query parameters or responses.
+          As a best practice, even for standard security schemes, API designers SHOULD
+          describe these properties of security schemes.
+
+          Including the security scheme description completes an API documentation.'
+  SecuritySchemePart:
+    type: MethodBase
+    properties:
+      annotations?:
+        type: AnnotationRef[]
+        description: Annotations to be applied to this security scheme part. Annotations are any property whose key begins with "(" and ends with ")" and whose name (the part between the beginning and ending parentheses) is a declared annotation name. See [[raml-10-spec-annotations|the section on annotations]].
+        (NoDirectParse): true
+        (DocumentationTableName): (&lt;annotationName&gt;)
+      displayName?:
+        type: string
+        description: An alternate, human-friendly name for the security scheme part
+      description?:
+        type: MarkdownString
+        description: A longer, human-friendly description of the security scheme part
+      securedBy?:
+        type: SecuritySchemeRef[]
+        description: ' securityScheme may also be applied to a resource by using the
+          securedBy key, which is equivalent to applying the securityScheme to all
+          methods that may be declared, explicitly or implicitly, by defining the
+          resourceTypes or traits property for that resource.
+
+          To indicate that the method may be called without applying any securityScheme,
+          the method may be annotated with the null securityScheme.'
+        (AllowsNull): true
+        (Hidden): true
+      headers?:
+        type: TypeDeclaration[]
+        description: Headers that allowed at this position
+        (NewInstanceName): New Header
+      queryString?:
+        type: TypeDeclaration
+        description: Specifies the query string, used by the scheme in order to authorize the request. Mutually exclusive with queryParameters.
+      queryParameters?:
+        type: TypeDeclaration[]
+        description: An APIs resources MAY be filtered (to return a subset of results) or altered (such as transforming a response body from JSON to XML format) by the use of query strings. If the resource or its method supports a query string, the query string MUST be defined by the queryParameters property
+        (NewInstanceName): New query parameter
+      responses?:
+        type: Response[]
+        description: Optional array of responses, describing the possible responses that could be sent. See [[raml-10-spec-responses|Responses]] section.
+        (NewInstanceName): New Response
+      is?:
+        type: TraitRef[]
+        description: Instantiation of applyed traits
+        (Hidden): true
+  SecuritySchemeSettings:
+    type: object
+    (AllowsAnyChildren): true
+  OAuth1SecuritySchemeSettings:
+    type: SecuritySchemeSettings
+    (AllowsAnyChildren): true
+    properties:
+      requestTokenUri:
+        type: FixedUriString
+        description: The URI of the Temporary Credential Request endpoint as defined in RFC5849 Section 2.1
+      authorizationUri:
+        type: FixedUriString
+        description: The URI of the Resource Owner Authorization endpoint as defined in RFC5849 Section 2.2
+      tokenCredentialsUri:
+        type: FixedUriString
+        description: The URI of the Token Request endpoint as defined in RFC5849 Section 2.3
+      signatures?:
+        type: string[]
+        (Hidden): true
+  FixedUriString:
+    type: StringType
+    description: This  type describes fixed uris
+  OAuth2SecuritySchemeSettings:
+    type: SecuritySchemeSettings
+    (AllowsAnyChildren): true
+    properties:
+      authorizationUri:
+        type: FixedUriString
+        description: The URI of the Authorization Endpoint as defined in RFC6749 [RFC6748] Section 3.1. Required forby authorization_code and implicit grant types.
+      authorizationGrants: string[]
+      accessTokenUri:
+        type: FixedUriString
+        description: The URI of the Token Endpoint as defined in RFC6749 [RFC6748] Section 3.2. Not required forby implicit grant type.
+      scopes?:
+        type: string[]
+        description: A list of scopes supported by the security scheme as defined in RFC6749 [RFC6749] Section 3.3
+  PassThroughSecuritySchemeSettings:
+    type: SecuritySchemeSettings
+    (AllowsAnyChildren): true
+    properties:
+      queryParameterName?: string
+      headerName?: string
+  OAuth2SecurityScheme:
+    type: AbstractSecurityScheme
+    description: Declares globally referable security scheme definition
+    discriminatorValue: OAuth 2.0
+    (ActuallyExports): $self
+    (ReferenceIs): settings
+    properties:
+      settings?: OAuth2SecuritySchemeSettings
+  OAuth1SecurityScheme:
+    type: AbstractSecurityScheme
+    description: Declares globally referable security scheme definition
+    discriminatorValue: OAuth 1.0
+    (ActuallyExports): $self
+    (ReferenceIs): settings
+    properties:
+      settings?: OAuth1SecuritySchemeSettings
+  PassThroughSecurityScheme:
+    type: AbstractSecurityScheme
+    description: Declares globally referable security scheme definition
+    discriminatorValue: Pass Through
+    (ActuallyExports): $self
+    (ReferenceIs): settings
+    properties:
+      settings?: PassThroughSecuritySchemeSettings
+  BasicSecurityScheme:
+    type: AbstractSecurityScheme
+    description: Declares globally referable security scheme definition
+    discriminatorValue: Basic Authentication
+    (ActuallyExports): $self
+    (ReferenceIs): settings
+  DigestSecurityScheme:
+    type: AbstractSecurityScheme
+    description: Declares globally referable security scheme definition
+    discriminatorValue: Digest Authentication
+    (ActuallyExports): $self
+    (ReferenceIs): settings
+  CustomSecurityScheme:
+    type: AbstractSecurityScheme
+    description: Declares globally referable security scheme definition
+    discriminatorValue: x-{other}
+    (ActuallyExports): $self
+    (ReferenceIs): settings
+  Method:
+    type: MethodBase
+    properties:
+      annotations?:
+        type: AnnotationRef[]
+        description: Most of RAML model elements may have attached annotations decribing additional meta data about this element
+        (NoDirectParse): true
+        (DocumentationTableName): (&lt;annotationName&gt;)
+      displayName?:
+        type: string
+        description: An alternate, human-friendly name for the method (in the resource's context).
+      description?:
+        type: MarkdownString
+        description: A longer, human-friendly description of the method (in the resource's context)
+      securedBy?:
+        type: SecuritySchemeRef[]
+        description: The security schemes that apply to this method
+        (AllowsNull): true
+      headers?:
+        type: TypeDeclaration[]
+        description: Detailed information about any request headers needed by this method.
+        (NewInstanceName): New Header
+      queryString?:
+        type: TypeDeclaration
+        description: Specifies the query string needed by this method. Mutually exclusive with queryParameters.
+      queryParameters?:
+        type: TypeDeclaration[]
+        description: Detailed information about any query parameters needed by this method. Mutually exclusive with queryString.
+        (NewInstanceName): New query parameter
+      body?:
+        type: TypeDeclaration[]
+        description: Some methods admit request bodies, which are described by this property.
+        (NewInstanceName): New Body
+      is?:
+        type: TraitRef[]
+        description: A list of the traits to apply to this method. See [[raml-10-spec-applying-resource-types-and-traits|Applying Resource Types and Traits]] section.
+      method?:
+        type: string
+        description: Method that can be called
+        (FromParentKey): true
+        (Key): true
+        enum: [
+          get,
+          put,
+          post,
+          delete,
+          options,
+          head,
+          patch,
+          trace,
+          connect]
+        (Hidden): true
+  Resource:
+    type: ResourceBase
+    properties:
+      annotations?:
+        type: AnnotationRef[]
+        description: Most of RAML model elements may have attached annotations decribing additional meta data about this element
+        (NoDirectParse): true
+        (DocumentationTableName): (&lt;annotationName&gt;)
+      displayName?:
+        type: string
+        description: An alternate, human-friendly name for the resource.
+      description?:
+        type: MarkdownString
+        description: A longer, human-friendly description of the resource.
+      relativeUri?:
+        type: RelativeUriString
+        description: Relative URL of this resource from the parent resource
+        (KeyShouldStartFrom): /
+        (FromParentKey): true
+        (Key): true
+        (Hidden): true
+      resources?:
+        type: Resource[]
+        description: A nested resource is identified as any property whose name begins with a slash ("/") and is therefore treated as a relative URI.
+        (KeyShouldStartFrom): /
+        (NewInstanceName): New Resource
+        (DocumentationTableName): /&lt;relativeUri&gt;
+  UriTemplate:
+    type: StringType
+    description: This type currently serves both for absolute and relative urls
+  FullUriTemplateString:
+    type: UriTemplate
+    description: This  type describes absolute uri templates
+  RelativeUriString:
+    type: UriTemplate
+    description: This  type describes relative uri templates
+  ResourceType:
+    type: ResourceBase
+    (AllowsOptionalProperties): true
+    (Template): true
+    properties:
+      name?:
+        type: string
+        description: Name of the resource type
+        (FromParentKey): true
+        (Key): true
+      uses?:
+        type: Library[]
+        description: You may import library locally here it contents is accessible only inside of this resource type
+      usage?: string
+  DataElementRef: Reference
+  StringType:
+    type: ValueType
+    (PrimitiveTypeWrapper): class java.lang.String
+    (NameAtRuntime): string
+    (Aliases): string
+  ValidityExpression: StringType
+  FunctionalInterface: StringType
+  SchemaString:
+    type: StringType
+    description: Schema at this moment only two subtypes are supported (json schema and xsd)
+    (Aliases): schema
+  JSonSchemaString:
+    type: SchemaString
+    description: JSON schema
+  XMLSchemaString:
+    type: SchemaString
+    description: XSD schema
+  ExampleString:
+    type: StringType
+    description: Examples at this moment only two subtypes are supported (json  and xml)
+  RAMLPointer: StringType
+  MimeType:
+    type: StringType
+    description: This sub type of the string represents mime types
+  MarkdownString:
+    type: StringType
+    description: '[GitHub Flavored Markdown](https://help.github.com/articles/github-flavored-markdown/)'
+  DocumentationItem:
+    type: RAMLLanguageElement
+    properties:
+      title:
+        type: string
+        description: Title of documentation section
+      content:
+        type: MarkdownString
+        description: Content of documentation section
+  ScriptSpec:
+    type: RAMLLanguageElement
+    properties:
+      language?: string
+      content?: string
+  ApiDescription:
+    type: RAMLLanguageElement
+    discriminator: type
+    properties:
+      type?:
+        type: string
+        enum: [
+          endpoint,
+          callback]
+
+      script?: ScriptSpec[]
+      apiFiles?: Api[]
+  CallbackAPIDescription:
+    type: ApiDescription
+    discriminatorValue: callback
+    properties:
+      callbackFor?: Api
+  RAMLProject:
+    type: RAMLLanguageElement
+    properties:
+      overview?: string
+      license?: string
+      declaredApis?: ApiDescription[]
+      relatedProjects?: RAMLProject[]
+      url?: string
+  LibraryBase:
+    type: RAMLLanguageElement
+    properties:
+      name?:
+        type: string
+        (FromParentKey): true
+        (Key): true
+      types?:
+        type: TypeDeclaration[]
+        description: Declarations of (data) types for use within this API
+      uses?:
+        type: Library[]
+        description: Importing libraries
+      annotationTypes?:
+        type: TypeDeclaration[]
+        description: Declarations of annotation types for use by annotations
+      resourceTypes?:
+        type: ResourceType[]
+        description: Declarations of resource types for use within this API
+      traits?:
+        type: Trait[]
+        description: Declarations of traits for use within this API
+      schemas?:
+        type: GlobalSchema[]
+        description: Alias for the equivalent "types" property, for compatibility with RAML 0.8. Deprecated - API definitions should use the "types" property, as the "schemas" alias for that property name may be removed in a future RAML version. The "types" property allows for XML and JSON schemas.
+      securitySchemes?:
+        type: AbstractSecurityScheme[]
+        description: Declarations of security schemes for use within this API.
+  RAMLSimpleElement: object
+  ImportDeclaration:
+    type: RAMLSimpleElement
+    properties:
+      value?:
+        type: Library
+        description: Content of the declared namespace
+      key?:
+        type: string
+        description: Name prefix (without dot) used to refer imported declarations
+        (FromParentKey): true
+        (Key): true
+  GlobalSchema:
+    type: RAMLSimpleElement
+    description: Content of the schema
+    (ActuallyExports): value
+    properties:
+      value?:
+        type: SchemaString
+        description: Content of the schema
+        (FromParentValue): true
+        (CanBeValue): true
+      key?:
+        type: string
+        description: Name of the global schema, used to refer on schema content
+        (FromParentKey): true
+        (Key): true
+  Api:
+    type: LibraryBase
+    properties:
+      annotations?:
+        type: AnnotationRef[]
+        description: Most of RAML model elements may have attached annotations decribing additional meta data about this element
+        (NoDirectParse): true
+        (DocumentationTableName): (&lt;annotationName&gt;)
+      name?:
+        type: string
+        (FromParentKey): true
+        (Key): true
+        (Hidden): true
+      displayName?:
+        type: string
+        description: The displayName attribute specifies the $self's display name. It is a friendly name used only for display or documentation purposes. If displayName is not specified, it defaults to the element's key (the name of the property itself).
+        (Hidden): true
+      version?:
+        type: string
+        description: The version of the API, e.g. "v1"
+      description?:
+        type: MarkdownString
+        description: A longer, human-friendly description of the API
+      securedBy?:
+        type: SecuritySchemeRef[]
+        description: The security schemes that apply to every resource and method in the API
+      protocols?:
+        type: string[]
+        description: The protocols supported by the API
+      baseUriParameters?:
+        type: TypeDeclaration[]
+        description: Named parameters used in the baseUri (template)
+      title:
+        type: string
+        description: Short plain-text label for the API
+      baseUri?:
+        type: FullUriTemplateString
+        description: A URI that's to be used as the base of all the resources' URIs. Often used as the base of the URL of each resource, containing the location of the API. Can be a template URI.
+      documentation?:
+        type: DocumentationItem[]
+        description: Additional overall documentation for the API
+      resources?:
+        type: Resource[]
+        description: 'The resources of the API, identified as relative URIs that begin
+          with a slash (/). Every property whose key begins with a slash (/), and
+          is either at the root of the API definition or is the child property of
+          a resource property, is a resource property, e.g.: /users, /{groupId}, etc'
+        (KeyShouldStartFrom): /
+        (NewInstanceName): New Resource
+        (DocumentationTableName): /&lt;relativeUri&gt;
+      mediaType?:
+        type: MimeType
+        description: The default media type to use for request and response bodies (payloads), e.g. "application/json"
+        (Inherited): true
+  Overlay:
+    type: Api
+    properties:
+      usage?:
+        type: string
+        description: contains description of why overlay exist
+      title?:
+        type: string
+        description: Short plain-text label for the API
+      masterRef: string
+  Extension:
+    type: Api
+    properties:
+      usage?:
+        type: string
+        description: contains description of why extension exist
+      title?:
+        type: string
+        description: Short plain-text label for the API
+      masterRef: string

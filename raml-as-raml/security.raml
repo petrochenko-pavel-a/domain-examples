@@ -1,0 +1,71 @@
+#%RAML 1.0 Library
+uses:
+  core:  core.raml
+  methods: methodsResources.raml
+types:
+  RAMLLanguageElement: core.RAMLLanguageElement
+  FixedUriString:
+    type: string
+    description: This  type describes fixed uris
+  AbstractSecurityScheme:
+    type: RAMLLanguageElement
+    description: Declares globally referable security scheme definition
+    properties:
+      type: string
+      describedBy?: SecuritySchemePart
+      settings?: SecuritySchemeSettings
+  SecuritySchemePart: methods.MethodBase
+  SecuritySchemeSettings: object
+  #Oath 2
+  OAuth2SecurityScheme:
+    type: AbstractSecurityScheme
+    description: Declares globally referable security scheme definition
+    discriminatorValue: OAuth 2.0
+  OAuth2SecuritySchemeSettings:
+    type: SecuritySchemeSettings
+    properties:
+      authorizationUri: FixedUriString
+      accessTokenUri: FixedUriString
+      authorizationGrants: string[]
+      scopes: string[]
+  #Oath 1
+  OAuth1SecurityScheme:
+    type: AbstractSecurityScheme
+    description: Declares globally referable security scheme definition
+    discriminatorValue: OAuth 1.0
+    properties:
+      settings: OAuth1SecuritySchemeSettings
+  OAuth1SecuritySchemeSettings:
+    type: SecuritySchemeSettings
+    properties:
+      signatures: string[]
+      authorizationUri: FixedUriString
+      tokenCredentialsUri: FixedUriString
+      requestTokenUri: FixedUriString
+  #Path through
+  PassThroughSecurityScheme:
+    type: AbstractSecurityScheme
+    description: Declares globally referable security scheme definition
+    discriminatorValue: Pass Through
+    properties:
+      settings: PassThroughSecuritySchemeSettings
+  PassThroughSecuritySchemeSettings:
+    type: SecuritySchemeSettings
+    properties:
+      headerName?: string
+      queryParameterName?: string
+  #Basic
+  BasicSecurityScheme:
+    type: AbstractSecurityScheme
+    description: Declares globally referable security scheme definition
+    discriminatorValue: Basic Authentication
+  #Digest
+  DigestSecurityScheme:
+    type: AbstractSecurityScheme
+    description: Declares globally referable security scheme definition
+    discriminatorValue: Digest Authentication
+  #Custom
+  CustomSecurityScheme:
+    type: AbstractSecurityScheme
+    description: Declares globally referable security scheme definition
+    discriminatorValue: x-{other}

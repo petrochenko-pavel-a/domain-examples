@@ -1,0 +1,106 @@
+#%RAML 1.0 Library
+uses:
+  core: "core.raml"
+types:
+  TypeExpression: string
+  TypeDeclaration: FullTypeDeclaration | TypeExpression #this is because RAML type has a shorhand when it can be declared as string
+  FullTypeDeclaration:
+    type: core.RAMLLanguageElement
+    properties:
+      type: TypeExpression[]
+      schema?: string
+      usage?: string
+      default?: string
+      example?: string
+      examples?:
+        type: object
+        properties:
+          '[]': ExampleSpec
+      repeat?: boolean
+      required?: boolean
+      facets?: TypeDeclarationMap
+      []: any #user declared facets
+  AnnotationFullTypeDeclaration: #this does not covers that annotation types can be also string types, e.t.c
+    type: FullTypeDeclaration
+    properties:
+      allowedTargets: string[]
+      allowMultiple?: boolean
+  TypeDeclarationMap:
+      properties:
+        "[]": TypeDeclaration
+  ExampleSpec:
+    type: core.RAMLLanguageElement
+    properties:
+      strict?: boolean
+      content: string
+  FileFullTypeDeclaration:
+    type: FullTypeDeclaration
+    description: (Applicable only to Form properties) Value is a file. Client generators SHOULD use this type to handle file uploads correctly.
+    discriminatorValue: file
+    properties:
+      fileTypes: string[]
+      minLength?: number
+      maxLength?: number
+  ArrayFullTypeDeclaration:
+    type: FullTypeDeclaration
+    discriminatorValue: array
+    properties:
+      maxItems?: number
+      items?: FullTypeDeclaration
+      minItems?: number
+      uniqueItems?: boolean
+  UnionFullTypeDeclaration:
+    type: FullTypeDeclaration
+    discriminatorValue: union
+    properties:
+      discriminator?: string
+  ObjectFullTypeDeclaration:
+    type: FullTypeDeclaration
+    discriminatorValue: object
+    properties:
+      discriminator?: string
+      discriminatorValue?: string
+      maxProperties?: number
+      additionalProperties?: TypeDeclaration
+      minProperties?: number
+      patternProperties?: TypeDeclarationMap
+      properties?: TypeDeclarationMap
+  StringFullTypeDeclaration:
+    type: FullTypeDeclaration
+    description: Value must be a string
+    discriminatorValue: string
+    properties:
+      pattern?: string
+      enum: string[]
+      minLength?: number
+      maxLength?: number
+  BooleanFullTypeDeclaration:
+    type: FullTypeDeclaration
+    description: Value must be a boolean
+    discriminatorValue: boolean
+  IntegerFullTypeDeclaration:
+    type: FullTypeDeclaration
+    description: Value MUST be a integer.
+    discriminatorValue: integer
+    properties:
+      format?: string
+      maximum?: number
+      enum: string[]
+      minimum?: number
+      multipleOf?: number
+  NumberFullTypeDeclaration:
+    type: FullTypeDeclaration
+    description: Value MUST be a number. Indicate floating point numbers as defined by YAML.
+    discriminatorValue: number
+    properties:
+      format?: string
+      maximum?: number
+      enum: string[]
+      minimum?: number
+      multipleOf?: number
+  DateFullTypeDeclaration:
+    type: FullTypeDeclaration
+    description: Value MUST be a string representation of a date as defined in RFC2616 Section 3.3 [RFC2616]. or according to specified date format
+    discriminatorValue: date
+    properties:
+      format?: string

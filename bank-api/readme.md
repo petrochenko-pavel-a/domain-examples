@@ -1,0 +1,1 @@
+This folder contains various experiments with shapes on top of RAML Bank API example

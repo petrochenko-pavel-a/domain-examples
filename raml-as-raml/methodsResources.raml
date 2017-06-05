@@ -1,0 +1,49 @@
+#%RAML 1.0 Library
+uses:
+  core: core.raml
+  types: types.raml
+types:
+  SecuritySchemeRef:
+      type: core.Reference
+      target: AbstractSecurityScheme
+  TraitRef:
+      type: core.Reference
+      target: Trait
+  HasNormalParameters:
+    type: core.RAMLLanguageElement
+    properties:
+      queryParameters?: types.TypeDeclarationMap
+      headers?: types.TypeDeclarationMap
+      queryString?: types.TypeDeclaration
+  MethodBase:
+    type: HasNormalParameters
+    properties:
+      securedBy: SecuritySchemeRef[]
+      protocols: string[]
+      responses?:
+        type: object
+        properties:
+          '[]': Response
+      body?: types.TypeDeclarationMap | types.TypeDeclaration #this union type is a result of having default media types
+      is: TraitRef[]
+  Method: MethodBase
+  Response:
+    type: core.RAMLLanguageElement
+    properties:
+      headers?: types.TypeDeclarationMap
+      body?: types.TypeDeclarationMap
+  ResourceTypeRef:
+    type: core.Reference
+    target: ResourceType
+  ResourceBase:
+    type: core.RAMLLanguageElement
+    properties:
+      type?: ResourceTypeRef
+      securedBy: SecuritySchemeRef[]
+      uriParameters?: types.TypeDeclarationMap
+      is: TraitRef[]
+      '[get|put|post|delete|options|head|patch|trace|connect]': Method
+  Resource:
+    type: ResourceBase
+    properties:
+      /\/.*/: Resource

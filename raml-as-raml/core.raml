@@ -1,0 +1,15 @@
+#%RAML 1.0 Library
+types:
+  MarkdownString:
+    type: string
+    description: '[GitHub Flavored Markdown](https://help.github.com/articles/github-flavored-markdown/)'
+  RAMLLanguageElement:
+    type: object
+    properties:
+      displayName?: string
+      description?: MarkdownString
+  RAMLSimpleElement: object
+  Reference:
+    type: object | string
+    facets:
+      target: string

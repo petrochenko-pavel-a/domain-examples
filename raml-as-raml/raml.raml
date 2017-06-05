@@ -1,0 +1,80 @@
+#%RAML 1.0 Library
+#This library describes RAML 1.0 grammar in terms of RAML types
+uses:
+  core: core.raml
+  types: types.raml
+  mr:  methodsResources.raml
+  security: security.raml
+types:
+  TypeDeclarationMap: types.TypeDeclarationMap
+  RAMLLanguageElement: core.RAMLLanguageElement
+  Trait:
+    type: mr.MethodBase
+    properties:
+      uses?:
+        //: string
+      usage?: string
+  ResourceType:
+    type: mr.ResourceBase
+    properties:
+      uses?:
+        type: object
+        properties:
+          //: string
+      usage?: string
+  Library:
+    type: LibraryBase
+    properties:
+      usage?: string
+  DocumentationItem:
+    type: RAMLLanguageElement
+    properties:
+      content: core.MarkdownString
+      title: string
+  LibraryBase:
+    type: RAMLLanguageElement
+    properties:
+      types?: TypeDeclarationMap
+      uses?:
+        type: object
+        properties:
+          //: Library
+      annotationTypes?: TypeDeclarationMap
+      traits?:
+        type: object
+        properties:
+          //: Trait
+      schemas?: types.TypeDeclarationMap
+      resourceTypes?:
+        type: object
+        properties:
+          //: ResourceType
+      securitySchemes?:
+        type: object
+        properties:
+          //: security.AbstractSecurityScheme
+  Api:
+    type: LibraryBase
+    properties:
+      version?: string
+      securedBy: mr.SecuritySchemeRef[]
+      mediaType?: string
+      baseUri?: string
+      baseUriParameters?: TypeDeclarationMap
+      documentation?:
+        type: object
+        properties:
+          //: DocumentationItem
+      protocols: string[]
+      /\/.*/: mr.Resource
+      title: string
+  Overlay:
+    type: Api
+    properties:
+      usage?: string
+      masterRef: string
+  Extension:
+    type: Api
+    properties:
+      usage?: string
+      masterRef: string
